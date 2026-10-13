@@ -1,0 +1,256 @@
+:root {
+  /* Typography Stacks from DESIGN.md */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: 'JetBrains Mono', "Fira Code", monospace;
+
+  /* Spacing Scale (strict 4px base increments) */
+  --space-xxs: 2px;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+  --space-xxl: 32px;
+
+  /* Radii (consistent 6px across components) */
+  --rounded-none: 0px;
+  --rounded-xs: 3px;
+  --rounded-sm: 6px;
+  --rounded-md: 8px;
+  --rounded-lg: 12px;
+  --rounded-full: 9999px;
+
+  /* Oxocarbon Dark (Default) */
+  --surface-base: #161616;
+  --surface-layer-1: #262626;
+  --surface-layer-2: #393939;
+  --surface-overlay: #525252;
+  --border-subtle: #393939;
+  --border-focus: #3ddbd9;
+  --text-primary: #f2f4f8;
+  --text-secondary: #dde1e6;
+  --text-muted: #525252;
+  --primary: #33b1ff;
+  --primary-hover: #82cfff;
+  --primary-text: #161616;
+  --accent-cyan: #08bdba;
+  --accent-turquoise: #3ddbd9;
+  --accent-blue: #78a9ff;
+  --accent-magenta: #ee5396;
+  --accent-pink: #ff7eb6;
+  --accent-green: #42be65;
+  --accent-purple: #be95ff;
+
+  --shadow-elevation-2: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    /* Oxocarbon Light */
+    --surface-base: #f2f4f8;
+    --surface-layer-1: #dde1e6;
+    --surface-layer-2: #f2f4f8;
+    --surface-overlay: #dde1e6;
+    --border-subtle: #cbd1d8;
+    --border-focus: #0f62fe;
+    --text-primary: #161616;
+    --text-secondary: #393939;
+    --text-muted: #525252;
+    --primary: #0f62fe;
+    --primary-hover: #673ab7;
+    --primary-text: #ffffff;
+    --accent-cyan: #08bdba;
+    --accent-turquoise: #ff7eb6;
+    --accent-blue: #ee5396;
+    --accent-magenta: #ee5396;
+    --accent-pink: #ff7eb6;
+    --accent-green: #42be65;
+    --accent-purple: #be95ff;
+
+    --shadow-elevation-2: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: var(--font-sans);
+  background-color: var(--surface-base);
+  color: var(--text-primary);
+  font-size: 13px;
+  line-height: 1.45;
+  letter-spacing: -0.005em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
+}
+
+input, textarea {
+  font-family: inherit;
+  color: inherit;
+}
+
+/* Elevation 1: Card / Issue Row Primitive */
+.card {
+  background: var(--surface-layer-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--rounded-sm);
+  transition: background 80ms ease, border-color 80ms ease;
+  position: relative;
+}
+
+.card:hover {
+  background: var(--surface-layer-2);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.code-tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: var(--text-secondary);
+  background: var(--surface-layer-2);
+  padding: 2px 5px;
+  border-radius: var(--rounded-xs);
+  border: 1px solid var(--border-subtle);
+}
+
+/* Elevation 2: Acrylic Popover / Modal Backdrop & Shell */
+.elevation-2 {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: var(--surface-layer-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--rounded-sm);
+  box-shadow: var(--shadow-elevation-2);
+}
+
+/* Action Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: var(--rounded-sm);
+  transition: background 80ms ease, border-color 80ms ease, color 80ms ease;
+  user-select: none;
+  line-height: 1;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: var(--primary-text);
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover);
+}
+
+.btn-secondary {
+  background: var(--surface-layer-2);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+}
+
+.btn-secondary:hover {
+  color: var(--text-primary);
+  border-color: var(--text-muted);
+}
+
+.btn-ghost {
+  color: var(--text-secondary);
+}
+
+.btn-ghost:hover {
+  background: var(--surface-layer-2);
+  color: var(--text-primary);
+}
+
+.btn-sm {
+  font-size: 11px;
+  padding: 4px 8px;
+}
+
+.delete-btn {
+  opacity: 0;
+  padding: 4px;
+  border-radius: var(--rounded-xs);
+  color: var(--text-muted);
+  transition: opacity 80ms ease, color 80ms ease, background 80ms ease;
+}
+
+.card:hover .delete-btn {
+  opacity: 0.7;
+}
+
+.delete-btn:hover {
+  opacity: 1 !important;
+  color: var(--accent-magenta);
+  background: rgba(238, 83, 150, 0.12);
+}
+
+/* Inputs */
+.input {
+  width: 100%;
+  background: var(--surface-base);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--rounded-sm);
+  padding: 6px 10px;
+  font-size: 13px;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 80ms ease;
+}
+
+.input:focus {
+  border-color: var(--border-focus);
+}
+
+.input::placeholder {
+  color: var(--text-muted);
+}
+
+.input-sm {
+  padding: 4px 8px;
+  font-size: 12px;
+}
