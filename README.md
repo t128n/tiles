@@ -7,8 +7,6 @@
 
 **Live Demo**: [https://t128n.github.io/tiles/](https://t128n.github.io/tiles/)
 
----
-
 ## ✨ Features
 
 - **🔒 Local-First Persistence**: All widgets and link collections persist directly in browser `localStorage`. Zero servers, zero telemetry, zero accounts.
@@ -28,8 +26,6 @@
 - **🎨 Modern Design**:
   - Built with the high-contrast **Oxocarbon** palette (IBM Carbon), 6px radii, and subtle elevation layering.
   - Automatic dark and light mode based on system preferences.
-
----
 
 ## 🚀 Quick Start
 
@@ -63,8 +59,6 @@ bun run preview
 
 The production static files will be emitted to `dist/`.
 
----
-
 ## 🚀 Deployment to GitHub Pages
 
 The project includes an automated GitHub Actions CI/CD pipeline in [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) that builds and deploys to **[t128n.github.io/tiles/](https://t128n.github.io/tiles/)** on every push to `main`.
@@ -74,8 +68,6 @@ The project includes an automated GitHub Actions CI/CD pipeline in [`.github/wor
 1. Go to your repository on GitHub: `https://github.com/t128n/tiles/settings/pages`
 2. Under **Build and deployment** > **Source**, select **GitHub Actions**.
 3. Push to `main` — the workflow will automatically run, check types, compile the bundle, and publish the site.
-
----
 
 ## 📂 Project Structure
 
@@ -106,8 +98,6 @@ tiles/
 ├── vite.config.ts               # Vite configuration (base: '/tiles/')
 └── package.json
 ```
-
----
 
 ## 📜 License
 
