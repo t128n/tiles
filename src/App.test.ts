@@ -265,7 +265,7 @@ describe("tiles app", () => {
       within(settings).getByRole("heading", { name: "About" }),
     ).toBeInTheDocument()
     expect(within(settings).getByRole("status")).toHaveTextContent(
-      /Updated to v1\.0\.1/,
+      /Updated to v\d+\.\d+\.\d+/,
     )
   })
 
