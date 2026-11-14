@@ -52,6 +52,7 @@ describe("settings", () => {
       openLinksInNewTab: true,
       experiments: {},
       githubOwners: ["vercel-labs", "anomalyco"],
+      sidebarTab: null,
     })
     expect(document.documentElement.dataset.theme).toBe("dark")
 
@@ -142,6 +143,20 @@ describe("settings", () => {
       calculator: true,
       "paste-links": true,
     })
+  })
+
+  test("keeps a known sidebar tab and drops an unknown one", () => {
+    const storage = memory(JSON.stringify({ sidebarTab: "github" }))
+    const stored = createSettingsStore({ storage })
+    expect(stored.value.sidebarTab).toBe("github")
+
+    const unknown = createSettingsStore({
+      storage: memory(JSON.stringify({ sidebarTab: "nope" })),
+    })
+    expect(unknown.value.sidebarTab).toBeNull()
+
+    stored.update({ sidebarTab: "hn" })
+    expect(JSON.parse(storage.value ?? "{}").sidebarTab).toBe("hn")
   })
 
   test("uses the stored key", () => {

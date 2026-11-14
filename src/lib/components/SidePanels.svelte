@@ -8,6 +8,19 @@
 
   const settings = getSettingsStore()
   const columns = $derived(activeColumns(settings.value))
+
+  // The last tab stays selected across reloads. A tab that is no longer
+  // enabled falls back to the first one.
+  const selected = $derived(
+    columns.find((column) => column.id === settings.value.sidebarTab)?.id ??
+      columns[0]?.id ??
+      null,
+  )
+
+  function select(value: string | null) {
+    if (!value || value === settings.value.sidebarTab) return
+    settings.update({ sidebarTab: value as ExperimentId })
+  }
 </script>
 
 {#snippet panel(id: ExperimentId)}
@@ -24,7 +37,7 @@
   </aside>
 {:else if columns.length > 1}
   <aside class="side-column side-column-tabs" aria-label="Side panels">
-    <Tabs defaultValue={columns[0].id}>
+    <Tabs value={selected} onValueChange={select}>
       <TabsList class="side-tabs" aria-label="Side panels">
         {#each columns as column (column.id)}
           <TabsTab value={column.id}>{column.title}</TabsTab>

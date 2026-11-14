@@ -222,7 +222,38 @@ describe("tiles app", () => {
     )
 
     expect(within(help).getByText("Suggest tiles")).toBeInTheDocument()
-    expect(within(help).getAllByRole("button", { name: "Copy" })).toHaveLength(2)
+    expect(within(help).getAllByRole("button", { name: "Copy" })).toHaveLength(1)
+  })
+
+  test("opens help with Alt+?", async () => {
+    render(App)
+
+    fireEvent.keyDown(document.body, { key: "?", altKey: true, shiftKey: true })
+    expect(await screen.findByRole("dialog", { name: "Help" })).toBeInTheDocument()
+  })
+
+  test("restores the last side panel tab and remembers a switch", async () => {
+    localStorage.setItem(
+      "tiles:settings:v1",
+      JSON.stringify({
+        experiments: { hn: true, github: true },
+        sidebarTab: "github",
+      }),
+    )
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({ ok: true, json: async () => ({ hits: [] }) })),
+    )
+    const user = userEvent.setup()
+    render(App)
+
+    const githubTab = await screen.findByRole("tab", { name: "GitHub tracker" })
+    await waitFor(() => expect(githubTab).toHaveAttribute("aria-selected", "true"))
+
+    await user.click(screen.getByRole("tab", { name: "Hacker News" }))
+    expect(
+      JSON.parse(localStorage.getItem("tiles:settings:v1") ?? "{}").sidebarTab,
+    ).toBe("hn")
   })
 
   test("opens help from the command palette", async () => {

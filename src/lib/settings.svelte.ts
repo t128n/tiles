@@ -45,6 +45,8 @@ export interface Settings {
   experiments: Partial<Record<ExperimentId, boolean>>
   /** GitHub users or organisations the tracker follows. */
   githubOwners: string[]
+  /** Side panel tab to reopen after a reload. */
+  sidebarTab: ExperimentId | null
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -53,6 +55,7 @@ export const DEFAULT_SETTINGS: Settings = {
   openLinksInNewTab: false,
   experiments: {},
   githubOwners: [...DEFAULT_GITHUB_OWNERS],
+  sidebarTab: null,
 }
 
 function defaults(): Settings {
@@ -127,6 +130,9 @@ function read(value: unknown): Settings {
         : DEFAULT_SETTINGS.openLinksInNewTab,
     experiments: readExperiments(candidate),
     githubOwners: readOwners(candidate.githubOwners),
+    sidebarTab: EXPERIMENT_IDS.includes(candidate.sidebarTab as ExperimentId)
+      ? (candidate.sidebarTab as ExperimentId)
+      : null,
   }
 }
 

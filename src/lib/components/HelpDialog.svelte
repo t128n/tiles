@@ -52,6 +52,8 @@
 
   useShortcut("mod+?", toggle, { description: "Help" })
   useShortcut("mod+shift+?", toggle, { description: "Help" })
+  useShortcut("alt+?", toggle, { description: "Help" })
+  useShortcut("alt+shift+?", toggle, { description: "Help" })
 </script>
 
 <Dialog {controller}>
@@ -124,8 +126,9 @@
         <div class="panel-pane-body" bind:this={pane}>
           {#if active === "prompts"}
             <p class="help-lede">
-              Copy a prompt into an agent session. Both preview their changes
-              and ask before writing to the board.
+              Copy the prompt into an agent session. It reads your local browser
+              history with shell commands and ends with a URL list that you
+              paste into the board yourself.
             </p>
             <PromptList />
           {:else}

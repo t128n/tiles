@@ -1,6 +1,5 @@
 <script lang="ts">
   import {
-    BotIcon,
     CheckIcon,
     DatabaseIcon,
     FlaskConicalIcon,
@@ -44,7 +43,6 @@
   import { experimentEnabled, parseOwnerInput } from "../settings.svelte"
   import type { PwaStore } from "../pwa.svelte"
   import { checkForUpdate, localVersion, type UpdateStatus } from "../version"
-  import PromptList from "./PromptList.svelte"
 
   interface Props {
     controller: DialogController
@@ -157,11 +155,6 @@
           ...experiment.terms,
         ]),
       ],
-    },
-    {
-      id: "prompts",
-      label: "Prompts",
-      terms: ["prompts", "copy", "agent", "history", "suggest", "board"],
     },
     {
       id: "about",
@@ -303,7 +296,7 @@
             </button>
           {/if}
 
-          {#if sectionVisible("experimental") || sectionVisible("prompts") || sectionVisible("about")}
+          {#if sectionVisible("experimental") || sectionVisible("about")}
             <p class="panel-nav-group">Advanced</p>
           {/if}
           {#if sectionVisible("experimental")}
@@ -315,17 +308,6 @@
             >
               <FlaskConicalIcon aria-hidden="true" />
               Experimental
-            </button>
-          {/if}
-          {#if sectionVisible("prompts")}
-            <button
-              class="panel-nav-item"
-              type="button"
-              aria-current={current?.id === "prompts" ? "page" : undefined}
-              onclick={() => (active = "prompts")}
-            >
-              <BotIcon aria-hidden="true" />
-              Prompts
             </button>
           {/if}
           {#if sectionVisible("about")}
@@ -567,8 +549,6 @@
                 </div>
               {/if}
             </div>
-          {:else if current.id === "prompts"}
-            <PromptList />
           {:else if current.id === "about"}
             <div class="settings-card">
               {#if show("version", "update", "build")}

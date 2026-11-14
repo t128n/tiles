@@ -1,7 +1,7 @@
 {
   "name": "tiles",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A local-first start page for the links you keep close.",
   "homepage": "https://t128n.github.io/tiles/",
   "type": "module",
@@ -11,9 +11,7 @@
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
     "test": "vitest run",
-    "test:watch": "vitest",
-    "history": "bun scripts/chrome-history.ts",
-    "history:profiles": "bun scripts/chrome-history.ts --list-profiles"
+    "test:watch": "vitest"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^7.3.1",

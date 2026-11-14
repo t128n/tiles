@@ -10,12 +10,13 @@ Most shortcuts work anywhere on the page. Shortcuts with <kbd>Ctrl</kbd>/<kbd>�
 | <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>K</kbd> | Open the palette |
 | <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>,</kbd> | Open Settings |
 | <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>?</kbd> | Open this help |
+| <kbd>Alt</kbd> + <kbd>?</kbd> | Open this help |
 | <kbd>Space</kbd> | Pick up or drop a focused grip handle |
 | Arrow keys | Move a picked-up tile or group |
 | <kbd>Escape</kbd> | Cancel a move, or close a popup |
 | <kbd>Enter</kbd> | Run the highlighted result, or submit a form |
 
-On most keyboard layouts <kbd>?</kbd> is <kbd>Shift</kbd> + <kbd>/</kbd>, so the help shortcut is <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>Shift</kbd> + <kbd>/</kbd>.
+On most keyboard layouts <kbd>?</kbd> is <kbd>Shift</kbd> + <kbd>/</kbd>, so the help shortcuts are <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>Shift</kbd> + <kbd>/</kbd> and <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>/</kbd>.
 
 ## Search and experiments
 

@@ -35,4 +35,4 @@ Links you have already opened are dimmed, so the unread ones stand out.
 
 ## Settings
 
-<kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>,</kbd> opens Settings. It holds the search engine, the link target, the theme, the experiments, the agent prompts, and export and import.
+<kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>,</kbd> opens Settings. It holds the search engine, the link target, the theme, the experiments, and export and import. Help, at <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>?</kbd> or <kbd>Alt</kbd> + <kbd>?</kbd>, holds the guide and the agent prompt.

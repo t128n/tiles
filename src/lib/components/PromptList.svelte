@@ -20,23 +20,23 @@
   onDestroy(() => clearTimeout(copyTimer))
 </script>
 
-<div class="settings-card">
+<div class="prompt-list">
   {#each PROMPTS as prompt (prompt.id)}
-    <div class="settings-row settings-row-prompt">
-      <div class="settings-row-text">
-        <span class="settings-row-label">{prompt.title}</span>
-        <span class="settings-row-description">{prompt.description}</span>
-        <details class="prompt-details">
-          <summary>Show prompt</summary>
-          <pre class="prompt-text">{prompt.text}</pre>
-        </details>
-      </div>
-      <div class="settings-row-actions">
+    <article class="prompt-item">
+      <div class="prompt-head">
+        <div class="prompt-copy">
+          <h3 class="prompt-title">{prompt.title}</h3>
+          <p class="prompt-description">{prompt.description}</p>
+        </div>
         <Button class="button" onclick={() => copy(prompt)}>
           {copied === prompt.id ? "Copied" : "Copy"}
         </Button>
       </div>
-    </div>
+      <details class="prompt-details">
+        <summary>Show prompt</summary>
+        <pre class="prompt-text">{prompt.text}</pre>
+      </details>
+    </article>
   {/each}
 </div>
 <span class="visually-hidden" aria-live="polite">

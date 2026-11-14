@@ -1,4 +1,3 @@
-import boardPrompt from "./prompts/board.md?raw"
 import suggestPrompt from "./prompts/suggest-tiles.md?raw"
 
 export interface Prompt {
@@ -9,8 +8,8 @@ export interface Prompt {
 }
 
 /**
- * The prompts agents use to work on this board. Settings shows them for
- * copying, so the Markdown files here are the only source.
+ * The prompt agents use to suggest links for this board. Help shows it for
+ * copying, so the Markdown file here is the only source.
  */
 export const PROMPTS: Prompt[] = [
   {
@@ -19,13 +18,6 @@ export const PROMPTS: Prompt[] = [
     description:
       "Propose groups and links for a start page from a local browser history.",
     text: suggestPrompt.trim(),
-  },
-  {
-    id: "board",
-    title: "Board access",
-    description:
-      "Inspect or update the saved board through the browser, with a dry run first.",
-    text: boardPrompt.trim(),
   },
 ]
 

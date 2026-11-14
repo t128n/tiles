@@ -16,9 +16,9 @@ To make tiles your browser's new tab page, open **Help → Browser setup** in th
 - **Search on type**: just start typing. One palette lists matching tiles, a web search for the query and commands; Enter runs the highlighted result. The board itself never changes.
 - **Palette**: <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>K</kbd> opens the same palette for Add link, Add folder, Add links (when the paste experiment is on), New group, Settings, Help, Export/Import and group jumps.
 - **Settings**: <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>,</kbd> for the search engine, theme, link target and the experiments.
-- **Help**: <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>?</kbd> opens the user guide with browser setup, keyboard shortcuts, data notes and the agent prompts.
+- **Help**: <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>?</kbd> or <kbd>Alt</kbd> + <kbd>?</kbd> opens the user guide with browser setup, keyboard shortcuts, data notes and the agent prompt.
 - **Experiments**: switchable extras under Settings → Advanced → Experimental. A calculator in the palette, bulk pasting of links, the Hacker News column and a GitHub release tracker.
-- **Tabbed sidebars**: with more than one column experiment on, the panels share one column and switch with tabs.
+- **Tabbed sidebars**: with more than one column experiment on, the panels share one column and switch with tabs; the tab you used last comes back after a reload.
 - **Full-width dashboard**: groups span the viewport on a 72-column grid, with the tiles wordmark fixed as a watermark in the bottom-right.
 - **Ghost add cell**: each group ends with an invisible tile that reveals Add link on hover or keyboard focus.
 - **Drag and keyboard reordering** is built with ui-sdk's `createReorder` and `createRovingFocus`: focus a grip handle, press Space, use the arrows, and press Space again.
@@ -27,7 +27,7 @@ To make tiles your browser's new tab page, open **Help → Browser setup** in th
 - **Undo**: deleting a tile, group or folder link, resetting the board, or importing a backup can be undone for ten seconds from the toast.
 - **Destructive actions ask first**, and are marked with `data-agent-confirm` for agents.
 - **Agent ready**: the app exposes its controls through ui-sdk's agent bridge, and registers WebMCP tools when the browser supports them.
-- **Prompts**: Settings → Prompts holds the agent prompts for curating or editing the board, with one-click copy.
+- **Prompts**: Help → Agent prompts holds the history prompt with one-click copy.
 
 ### WebMCP
 
@@ -43,13 +43,11 @@ WebMCP is still experimental. If `document.modelContext` is missing, enable the 
 
 ### Suggesting tiles from history
 
-Open **Settings → Prompts** (<kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>,</kbd>), copy **Suggest tiles**, and paste it into your agent with any constraints. The prompt lives in [`src/lib/prompts/suggest-tiles.md`](src/lib/prompts/suggest-tiles.md); there are no `.opencode` command files.
+Open **Help → Agent prompts** (<kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>?</kbd> or <kbd>Alt</kbd> + <kbd>?</kbd>), copy **Suggest tiles**, and paste it into your agent with any constraints. The prompt lives in [`src/lib/prompts/suggest-tiles.md`](src/lib/prompts/suggest-tiles.md); there are no `.opencode` command files.
 
-It asks which browser and profile to read before touching history, groups the most-visited domains, shows a plan, previews the merge with a dry run, and only writes after approval. It reads and writes `localStorage["tiles:v1"]` through the `browse` tool. It does not depend on WebMCP. It never reads page paths into the chat and only reports domains and visit counts.
+It asks which browser and which profiles to read before touching history, finds them with PowerShell or bash, and scans a temporary copy of the profile's `History` SQLite database with `sqlite3`, or the Python standard library when `sqlite3` is missing. It looks at hosts, subdomains and the busiest paths, and it includes intranet, self-hosted and `localhost` links in their own group.
 
-The helper reads a temporary copy of a Chromium profile's `History` SQLite database. CDP has no history API, so this is the reliable alternative. It supports Chrome, Edge, Brave, Chromium and Helium, and accepts `--history <path>` for any other profile. See [`scripts/README.md`](scripts/README.md).
-
-**Board access** in the same section is the prompt for inspecting an existing page or applying a plan you already have. Both prompts use the `browse` MCP and `localStorage`; WebMCP remains available to browser agents but is not required for this workflow.
+The run ends with a grouped list of URLs. Turn on **Paste links** under Settings → Advanced → Experimental, then use **Add links…** in the palette once per group. Duplicates already on the board are skipped, and the agent never writes to the board itself. It reports hosts and visits, not page titles or paths, and leaves banking, health and similar private URLs out.
 
 ### Keyboard
 
@@ -62,6 +60,7 @@ The helper reads a temporary copy of a Chromium profile's `History` SQLite datab
 | <kbd>Enter</kbd> | Run the highlighted result |
 | <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>,</kbd> | Open settings |
 | <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>?</kbd> | Open help |
+| <kbd>Alt</kbd> + <kbd>?</kbd> | Open help |
 | <kbd>Space</kbd> | Pick up or drop a focused grip handle |
 | <kbd>Arrow keys</kbd> | Move a picked-up tile or group |
 | <kbd>Escape</kbd> | Cancel a move, close a popup |
@@ -103,7 +102,6 @@ The dev server runs at `http://localhost:5173/tiles/` because the production bas
 bun run check   # svelte-check + TypeScript
 bun run test    # Vitest, jsdom and Testing Library
 bun run build   # static output in dist/
-bun run history # local browser history summary (see scripts/README.md)
 ```
 
 ## Deployment
@@ -135,12 +133,9 @@ src/
       route.ts               URL, then experiments, then the search engine
     help.ts                  help topics from docs/user
     prompts/
-      suggest-tiles.md       history to plan, then localStorage apply
-      board.md               inspect or apply a plan through the browser
+      suggest-tiles.md       browser history to a grouped URL list
     components/              palette, side panels, groups, tiles, folders, dock, dialogs
   test/setup.ts              jsdom and ui-sdk test setup
-scripts/
-  chrome-history.ts          local Chromium history summary
 ```
 
 Components come from [`@ui-sdk`](https://ui-sdk.dev). The local docs are in `node_modules/@ui-sdk/svelte/docs/llms.txt`.

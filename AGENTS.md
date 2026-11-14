@@ -44,7 +44,8 @@ bun run build
   events feed; it is too sparse to fill the panel.
 - The settings dialog is a two-pane modal (search, sidebar sections, card rows). Keep new settings as rows with a label and a one-line description. Settings and help share the `.panel-*` layout classes; settings-only parts stay in `.settings-*`.
 - User documentation is `docs/user/*.md`, imported with `?help`. The `tiles-user-docs` Vite plugin compiles it to HTML at build time with satteri, so no Markdown parser or raw Markdown ships to the browser. Help is the only home for browser setup instructions; the README links to it.
-- Help opens with Ctrl/Cmd + ? (`mod+?` and `mod+shift+?`), from the dock menu and from the command palette.
+- Help opens with Ctrl/Cmd + ? (`mod+?` and `mod+shift+?`) and with Alt + ? (`alt+?` and `alt+shift+?`), from the dock menu and from the command palette.
+- With two or more column experiments on, the sidebar remembers the tab in `Settings.sidebarTab` and reopens it after a reload. A tab that is no longer enabled falls back to the first.
 - Deletes, reset and import keep one undo snapshot for ten seconds (`rememberUndo`, `clearUndo`, `undo`). Import validates with `parseBoard`, previews the counts, and replaces only after confirmation in Settings → Data; it stays undoable. The command palette offers **Export board** and **Import board** (the latter opens Settings → Data).
 - Dialogs use a light backdrop without blur.
 
@@ -52,10 +53,10 @@ bun run build
 
 - `src/lib/webmcp.ts` registers `tiles_list` and `tiles_apply_suggestions` when `document.modelContext` exists. `src/lib/agent.ts` also registers ui-sdk's `snapshot`, `act` and `query`. This is optional browser support; the OpenCode history workflow does not depend on it.
 - `tiles_apply_suggestions` defaults to a dry run. Keep the `dryRun: false` path behind `window.confirm`, and never make it delete or reorder.
-- `src/lib/prompts/suggest-tiles.md` and `src/lib/prompts/board.md` are the single source for the agent prompts. Settings → Prompts and Help → Agent prompts show and copy them. There are no `.opencode` command files; do not add them back.
-- The history helper reads a temporary copy of the Chromium `History` SQLite database. CDP has no history API. Do not read the user's history without consent, and do not print page paths.
-- Never default to the most recently used browser profile in the prompt. List profiles, ask, then pass `--profile`.
-- Use the browse MCP, not WebMCP, for the history workflow. WebMCP is for browser agents that support `document.modelContext`.
+- `src/lib/prompts/suggest-tiles.md` is the single source for the agent prompt. Only Help → Agent prompts shows and copies it; Settings has no prompts section. There are no `.opencode` command files; do not add them back.
+- The prompt reads history with bash or PowerShell, `sqlite3` and the Python standard library. It asks for the browser and the profiles, copies the SQLite database to a temporary folder, and ends with a grouped URL list for **Add links…**. Do not reintroduce the removed `scripts/chrome-history.ts`, and do not let the prompt write to the board.
+- Never default to the most recently used browser profile in the prompt. Find the installed browsers, ask, then list profiles and ask again.
+- The prompt reports hosts and visits, never page titles or full paths, and leaves sensitive domains out while keeping personal and internal links.
 
 
 ## Structure
