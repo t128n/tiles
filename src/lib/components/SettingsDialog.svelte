@@ -43,20 +43,24 @@
   import { experimentEnabled, parseOwnerInput } from "../settings.svelte"
   import type { PwaStore } from "../pwa.svelte"
   import { checkForUpdate, localVersion, type UpdateStatus } from "../version"
+  import { markUpdateRequested, type UpdateResult } from "../update"
 
   interface Props {
     controller: DialogController
     pwa: PwaStore
     request?: SettingsRequest | null
+    updated?: UpdateResult | null
   }
 
-  let { controller, pwa, request = null }: Props = $props()
+  let { controller, pwa, request = null, updated = null }: Props = $props()
 
   const settings = getSettingsStore()
   const store = getBoardStore()
 
   let versionStatus = $state<UpdateStatus | null>(null)
   let checking = $state(false)
+  let updating = $state(false)
+  let showUpdated = $state(false)
   let search = $state("")
   let active = $state("general")
 
@@ -83,6 +87,18 @@
   $effect(() => {
     if (request?.section) active = request.section
   })
+
+  $effect(() => {
+    if (updated) showUpdated = true
+  })
+
+  async function updateNow() {
+    if (updating) return
+    updating = true
+    markUpdateRequested()
+    await pwa.update()
+    updating = false
+  }
 
   function chooseImportFile() {
     importError = ""
@@ -234,7 +250,13 @@
   )
 </script>
 
-<Dialog {controller} onOpenChange={(open) => open && checkUpdates()}>
+<Dialog
+  {controller}
+  onOpenChange={(open) => {
+    if (open) checkUpdates()
+    else showUpdated = false
+  }}
+>
   <DialogBackdrop />
   <DialogContent
     class="dialog panel-dialog"
@@ -562,6 +584,23 @@
                       )}
                     </span>
                     <span class="settings-row-description">{updateHint}</span>
+                    {#if showUpdated}
+                      <span
+                        class="settings-updated"
+                        class:is-muted={!updated?.updated}
+                        role="status"
+                      >
+                        {#if updated?.updated}
+                          <CheckIcon aria-hidden="true" />
+                          Updated to v{localVersion.version} · build {localVersion.buildId.slice(
+                            0,
+                            7,
+                          )}.
+                        {:else}
+                          Reloaded. This build has not changed yet.
+                        {/if}
+                      </span>
+                    {/if}
                     {#if versionStatus?.remote}
                       <span class="settings-row-description">
                         Remote v{versionStatus.remote.version} · build {versionStatus.remote.buildId.slice(
@@ -580,8 +619,12 @@
                       Check for updates
                     </Button>
                     {#if pwa.needRefresh || versionStatus?.updateAvailable}
-                      <Button class="button primary" onclick={() => pwa.update()}>
-                        Reload
+                      <Button
+                        class="button primary"
+                        onclick={updateNow}
+                        disabled={updating}
+                      >
+                        {updating ? "Updating…" : "Update now"}
                       </Button>
                     {/if}
                   </div>

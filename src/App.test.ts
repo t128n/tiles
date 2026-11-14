@@ -256,6 +256,19 @@ describe("tiles app", () => {
     ).toBe("hn")
   })
 
+  test("reopens settings after an update and confirms it", async () => {
+    sessionStorage.setItem("tiles:update-from:v1", "an-older-build")
+    render(App)
+
+    const settings = await screen.findByRole("dialog", { name: "Settings" })
+    expect(
+      within(settings).getByRole("heading", { name: "About" }),
+    ).toBeInTheDocument()
+    expect(within(settings).getByRole("status")).toHaveTextContent(
+      /Updated to v1\.0\.1/,
+    )
+  })
+
   test("opens help from the command palette", async () => {
     const user = userEvent.setup()
     render(App)

@@ -3,7 +3,7 @@ export interface PwaStore {
   readonly offlineReady: boolean
   readonly isProduction: boolean
   check: () => void
-  update: () => void
+  update: () => Promise<void>
 }
 
 export function createPwaStore(): PwaStore {
@@ -50,8 +50,12 @@ export function createPwaStore(): PwaStore {
     check() {
       registration?.update()
     },
-    update() {
-      updateServiceWorker?.(true)
+    async update() {
+      if (updateServiceWorker) {
+        // Activates the waiting worker and reloads when there is one.
+        await updateServiceWorker(true)
+      }
+      window.location.reload()
     },
   }
 }

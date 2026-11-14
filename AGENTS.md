@@ -48,6 +48,7 @@ bun run build
 - With two or more column experiments on, the sidebar remembers the tab in `Settings.sidebarTab` and reopens it after a reload. A tab that is no longer enabled falls back to the first.
 - Deletes, reset and import keep one undo snapshot for ten seconds (`rememberUndo`, `clearUndo`, `undo`). Import validates with `parseBoard`, previews the counts, and replaces only after confirmation in Settings → Data; it stays undoable. The command palette offers **Export board** and **Import board** (the latter opens Settings → Data).
 - Dialogs use a light backdrop without blur.
+- Settings → About offers **Update now** for a new service worker or a newer `version.json`. The click marks the current build in `sessionStorage`, reloads, and the next page opens Settings → About with a green confirmation from `consumeUpdateRequest`. Do not go back to a bare "Reload" button.
 
 ## WebMCP and prompts
 

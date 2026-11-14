@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from "svelte"
   import { createAlertDialogController } from "@ui-sdk/svelte/alert-dialog"
   import { createDialogController } from "@ui-sdk/svelte/dialog"
   import { createBoardStore, type BoardStore } from "./lib/board.svelte"
@@ -12,6 +13,7 @@
   import { exportBoard } from "./lib/backup"
   import { createSettingsStore, experimentEnabled } from "./lib/settings.svelte"
   import { createPwaStore } from "./lib/pwa.svelte"
+  import { consumeUpdateRequest, type UpdateResult } from "./lib/update"
   import { activeColumns } from "./lib/experiments/registry"
   import type {
     BulkAddPayload,
@@ -56,6 +58,17 @@
 
   let settingsRequest = $state<SettingsRequest | null>(null)
   let pendingBulk = $state<BulkAddPayload | null>(null)
+  let updateResult = $state<UpdateResult | null>(null)
+
+  // A reload after "Update now" comes back here: reopen Settings and say
+  // whether the build changed.
+  onMount(() => {
+    const result = consumeUpdateRequest()
+    if (!result) return
+    updateResult = result
+    settingsRequest = { section: "about" }
+    settingsDialog.open()
+  })
 
   function openPendingBulk() {
     if (!pendingBulk) return
@@ -132,7 +145,7 @@
 {#if bulkAddEnabled}
   <BulkAddDialog controller={bulkAddDialog} />
 {/if}
-<SettingsDialog controller={settingsDialog} {pwa} request={settingsRequest} />
+<SettingsDialog controller={settingsDialog} {pwa} request={settingsRequest} updated={updateResult} />
 <HelpDialog controller={helpDialog} />
 <ConfirmDialog controller={confirmDialog} />
 

@@ -26,6 +26,7 @@
   --danger: light-dark(#b42318, #f28b82);
   --danger-hover: light-dark(#941d13, #ffb4ad);
   --danger-contrast: light-dark(#ffffff, #2a0b08);
+  --success: light-dark(#1a7f37, #6ed58c);
   --warning-surface: light-dark(#fff4d6, #2a2113);
   --warning-text: light-dark(#6b4400, #ffd58a);
   --warning-border: light-dark(#e8c56a, #5c4a22);
@@ -1301,13 +1302,37 @@ body {
 
 .settings-row-actions .button {
   height: 32px;
-  border-color: var(--border);
-  background: var(--surface-raised);
   font-size: 12.5px;
 }
 
-.settings-row-actions .button:hover {
+.settings-row-actions .button:not(.primary):not(.destructive) {
+  border-color: var(--border);
+  background: var(--surface-raised);
+}
+
+.settings-row-actions .button:not(.primary):not(.destructive):hover {
   background: color-mix(in srgb, var(--surface-raised) 90%, var(--text) 10%);
+}
+
+.settings-updated {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--success);
+  font-size: 11.5px;
+  font-weight: 550;
+  line-height: 1.4;
+}
+
+.settings-updated svg {
+  width: 13px;
+  height: 13px;
+  flex: none;
+}
+
+.settings-updated.is-muted {
+  color: var(--muted);
+  font-weight: 400;
 }
 
 .settings-row-import {

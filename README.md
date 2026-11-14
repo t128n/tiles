@@ -22,7 +22,7 @@ To make tiles your browser's new tab page, open **Help → Browser setup** in th
 - **Full-width dashboard**: groups span the viewport on a 72-column grid, with the tiles wordmark fixed as a watermark in the bottom-right.
 - **Ghost add cell**: each group ends with an invisible tile that reveals Add link on hover or keyboard focus.
 - **Drag and keyboard reordering** is built with ui-sdk's `createReorder` and `createRovingFocus`: focus a grip handle, press Space, use the arrows, and press Space again.
-- **Offline app shell**: a generated service worker precaches the app, and Settings compares the local build with the published `version.json`.
+- **Offline app shell**: a generated service worker precaches the app. Settings compares the local build with the published `version.json`; **Update now** reloads onto the new build, reopens Settings and confirms the update there.
 - **Backup**: Settings → Data, or **Export board** / **Import board** in the command palette, exports the board as `tiles-<date>.json` and imports it back behind a validation preview and a confirmation.
 - **Undo**: deleting a tile, group or folder link, resetting the board, or importing a backup can be undone for ten seconds from the toast.
 - **Destructive actions ask first**, and are marked with `data-agent-confirm` for agents.
