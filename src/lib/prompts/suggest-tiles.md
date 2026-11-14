@@ -9,11 +9,14 @@ You only read. I import the result by hand, so the run ends with a grouped URL l
 ## Rules
 
 - Ask before reading history, and let me pick the browser and the profiles. Never default to the most recently used profile.
-- Use local tools only: bash or PowerShell, `sqlite3` when it is installed, and the Python standard library as the fallback. Do not install packages, call a web service, or send history anywhere.
+- Use bash or PowerShell for the file work. Do not install packages, call a web service, or send history anywhere.
 - Read a temporary copy of the `History` database. The live file is locked while the browser runs, and the profile is never written to.
+- Rank hosts by visits. That ranking is the selection: take the top 20, then label it. Groups are headings over the ranking, never a budget for sites. Three to six headings is the limit, not the number of sites. A group needs three sites; if a heading needs filler, drop the heading.
+- One URL per host. Homepage unless a path is the clear destination.
+- A subdomain stands alone: `mise-versions.example.dev` is not covered by `example.dev`.
+- Internal is opt-in, at most three, and only where I work daily: my own app, my code server. Admin, status and router pages are out. Dev servers on `localhost:PORT` are out.
 - Summarize hosts and visit counts. Do not repeat page titles, full page paths, or URLs with tokens, query strings or credentials in the chat.
 - Leave out banking, health, account recovery, adult and file-manager URLs. Mail, drive, calendar, code hosting and AI services are fine.
-- Personal and internal links are wanted: intranet names, `*.lan`, `*.local`, `localhost`, self-hosted services and unusual ports. Put them in their own group and keep credentials out of the URLs.
 - Every suggested URL comes from the history table. Do not invent URLs, guess a homepage you did not visit, or promote a path to a domain.
 - Do not write to the board. I paste the result into tiles myself.
 
@@ -111,161 +114,98 @@ For Firefox, copy `places.sqlite*` and set `$db` to that copy instead.
 
 Done when: `$db` points at a copy you created, and the original profile is untouched.
 
-### 4. Read the hosts
+### 4. Read every host
 
-The window is the last 90 days and at least five visits; change it when I ask. Chromium stores visit times in microseconds since 1601, so the cutoff adds the offset.
+Save this reader as `$tmp/report.cjs`, then run `node "$tmp/report.cjs" "$db"`. A second argument is the window in days; the default is 90. It detects Chromium and Firefox databases, counts every visit in the window, keeps hosts with at least two visits, and prints `hosts<TAB>count` followed by one row per host: host, visits, and the three busiest path prefixes. There is no row limit, so the count line shows how much of the tail you are holding.
 
-```sh
-sqlite3 "$db" "
-WITH recent AS (
-  SELECT u.url AS url, COUNT(*) AS visits
-  FROM urls u
-  JOIN visits v ON v.url = u.id
-  WHERE v.visit_time >= (strftime('%s','now','-90 days') + 11644473600) * 1000000
-    AND (u.url LIKE 'http://%' OR u.url LIKE 'https://%')
-  GROUP BY u.id
-),
-hosted AS (
-  SELECT
-    CASE
-      WHEN instr(substr(url, instr(url, '://') + 3), '/') > 0
-        THEN substr(url, instr(url, '://') + 3,
-                    instr(substr(url, instr(url, '://') + 3), '/') - 1)
-      ELSE substr(url, instr(url, '://') + 3)
-    END AS host,
-    visits
-  FROM recent
+```js
+const { DatabaseSync } = require("node:sqlite")
+
+const file = process.argv[2]
+const days = Number(process.argv[3] ?? 90)
+const db = new DatabaseSync(file, { readOnly: true })
+const tables = new Set(
+  db.prepare("select name from sqlite_master where type = 'table'")
+    .all()
+    .map((row) => row.name),
 )
-SELECT
-  CASE WHEN host LIKE 'www.%' THEN substr(host, 5) ELSE host END AS host,
-  SUM(visits) AS visits,
-  COUNT(*) AS urls
-FROM hosted
-GROUP BY 1
-HAVING SUM(visits) >= 5
-ORDER BY visits DESC
-LIMIT 120;"
+const firefox = tables.has("moz_places")
+const cutoff = firefox
+  ? (Date.now() - days * 86400000) * 1000
+  : (Date.now() - days * 86400000 + 11644473600000) * 1000
+const sql = firefox
+  ? `select p.url as url, count(*) as visits
+     from moz_places p join moz_historyvisits h on h.place_id = p.id
+     where h.visit_date >= ? and (p.url like 'http://%' or p.url like 'https://%')
+     group by p.id`
+  : `select u.url as url, count(*) as visits
+     from urls u join visits v on v.url = u.id
+     where v.visit_time >= ? and (u.url like 'http://%' or u.url like 'https://%')
+     group by u.id`
+
+const hosts = new Map()
+for (const row of db.prepare(sql).all(cutoff)) {
+  let url
+  try {
+    url = new URL(row.url)
+  } catch {
+    continue
+  }
+  const host =
+    url.hostname.toLowerCase().replace(/^www\./, "") +
+    (url.port ? `:${url.port}` : "")
+  if (!host) continue
+  const entry = hosts.get(host) ?? { visits: 0, paths: new Map() }
+  entry.visits += Number(row.visits)
+  const parts = url.pathname.split("/").filter(Boolean).slice(0, 2)
+  const prefix = parts.length ? `/${parts.join("/")}` : "/"
+  entry.paths.set(prefix, (entry.paths.get(prefix) ?? 0) + Number(row.visits))
+  hosts.set(host, entry)
+}
+
+const ranked = [...hosts]
+  .filter(([, entry]) => entry.visits >= 2)
+  .sort((left, right) => right[1].visits - left[1].visits)
+console.log(`hosts\t${ranked.length}`)
+for (const [host, entry] of ranked) {
+  const top = [...entry.paths]
+    .sort((left, right) => right[1] - left[1])
+    .slice(0, 3)
+    .map(([path, visits]) => `${path} ${visits}`)
+    .join(", ")
+  console.log(`${host}\t${entry.visits}\t${top}`)
+}
 ```
 
-Firefox stores seconds in `moz_historyvisits.visit_date`, so drop the offset:
+Done when: you hold the ranked host table for the window I asked for, the count line matches the number of rows, and you checked that no row was cut off.
 
-```sh
-sqlite3 "$db" "
-SELECT p.url, p.visit_count
-FROM moz_places p
-JOIN moz_historyvisits h ON h.place_id = p.id
-WHERE h.visit_date >= strftime('%s','now','-90 days') * 1000000
-  AND (p.url LIKE 'http://%' OR p.url LIKE 'https://%')
-ORDER BY p.visit_count DESC
-LIMIT 200;"
-```
+### 5. Read the paths
 
-When `sqlite3` is missing, run this with `python` or `python3` and the same copied Chromium file. It prints `host`, visits and the three busiest paths per host, separated by tabs:
+The path column already holds the three busiest prefixes per host. Use it to choose between a homepage and a deep link: a path wins only when it is clearly the destination, is not a login, search, checkout or settings URL, and carries no token or id.
 
-```python
-import collections, sqlite3, sys, time, urllib.parse
+Done when: every host you may suggest has a homepage-or-path choice you can defend in one line.
 
-db = sys.argv[1]
-days = int(sys.argv[2]) if len(sys.argv) > 2 else 90
-cutoff = (int(time.time() * 1000) - days * 86400000 + 11644473600000) * 1000
-con = sqlite3.connect("file:" + db + "?mode=ro", uri=True)
-rows = con.execute(
-    "SELECT u.url, COUNT(*) FROM urls u JOIN visits v ON v.url = u.id "
-    "WHERE v.visit_time >= ? AND (u.url LIKE 'http://%' OR u.url LIKE 'https://%') "
-    "GROUP BY u.id",
-    (cutoff,),
-)
-hosts = collections.Counter()
-paths = collections.defaultdict(collections.Counter)
-for url, visits in rows:
-    parts = urllib.parse.urlsplit(url)
-    if parts.scheme not in ("http", "https"):
-        continue
-    host = (parts.hostname or "").lower()
-    host = host[4:] if host.startswith("www.") else host
-    if not host:
-        continue
-    hosts[host] += visits
-    paths[host][parts.path or "/"] += visits
-for host, visits in hosts.most_common(120):
-    top = ", ".join(path + " " + str(count) for path, count in paths[host].most_common(3))
-    print(host + "\t" + str(visits) + "\t" + top)
-```
+### 6. Select
 
-On PowerShell, build the script as `@' … '@ | python - "$db"`. On bash, write it to `$tmp/report.py` and run `python3 "$tmp/report.py" "$db"`.
+Show the ranked table (host, visits, homepage or path). Do not group yet.
 
-When neither reader exists, Node 23.4 or newer has SQLite built in as `node:sqlite`; the same SQL runs there without an install. If no reader is available, stop and ask me instead of installing anything.
+Done when: the table ranks every host with at least two visits, ungrouped, and the rows match the count from step 4.
 
-Done when: you hold a host table with visit counts for the window I asked for.
+### 7. Cut with me
 
-### 5. Look at subdomains and paths
+Show the top 20 and ask which of these I want and what the headings should be. Add anything I name that is missing from the table — a host I visit rarely is still mine. Ask separately whether internal links belong on the board, and list at most three daily-use ones. Only then group.
 
-Separate subdomains stay separate: `mail.example.com` and `example.com` are two rows. Treat a subdomain as the suggestion when I clearly use it more than its root.
+A group needs three sites. If a heading needs filler, drop the heading.
 
-For the ten busiest hosts, read the busiest paths so you can choose between a homepage and a deep link. Strip query strings and fragments first; never show tokens or ids.
+Done when: I approved the sites and named the headings, every excluded host has a reason, and any internal sites are at most three and used daily.
 
-```sh
-sqlite3 "$db" "
-WITH recent AS (
-  SELECT u.url AS url, COUNT(*) AS visits
-  FROM urls u
-  JOIN visits v ON v.url = u.id
-  WHERE v.visit_time >= (strftime('%s','now','-90 days') + 11644473600) * 1000000
-    AND (u.url LIKE 'http://%' OR u.url LIKE 'https://%')
-  GROUP BY u.id
-),
-clean AS (
-  SELECT
-    CASE
-      WHEN instr(url, '?') > 0 THEN substr(url, 1, instr(url, '?') - 1)
-      ELSE url
-    END AS url,
-    visits
-  FROM recent
-)
-SELECT url, SUM(visits) AS visits
-FROM clean
-WHERE url LIKE 'https://github.com/%' OR url LIKE 'https://linear.app/%'
-GROUP BY url
-ORDER BY visits DESC
-LIMIT 40;"
-```
-
-Replace the two `LIKE` patterns with `https://HOST/%` for the hosts you are looking at. The result is for your planning only: in the chat, name the path prefix, never the full address.
-
-Done when: for each host you may suggest, you know whether the homepage or a path is the better tile, and internal hosts are recognized.
-
-### 6. Plan the groups
-
-Propose three to six groups in my vocabulary. Keep the strongest sites, one URL per host, and prefer the homepage unless a path is clearly the destination. Reuse a name I already use when I say it. Put intranet, self-hosted and `localhost` links in one Personal or Internal group. Skip search engines, redirectors, login pages, duplicates and anything private.
-
-Show a compact table before the list:
-
-```text
-Work
-  github.com        143 visits   homepage
-  linear.app         67 visits   homepage
-
-Reading
-  news.ycombinator.com   98 visits   homepage
-  docs.python.org        31 visits   /3/library
-
-Internal
-  nas.lan                22 visits   homepage
-  localhost:8080         18 visits   /
-```
-
-List the sites you left out as sensitive, and the ones you dropped as duplicates or weak.
-
-Done when: every host in the table is placed in a group or listed as skipped, and I can see the reason.
-
-### 7. Tell me how to import it
+### 8. Tell me how to import it
 
 In tiles, turn on **Paste links** under Settings → Advanced → Experimental. Then open the palette with Ctrl/Cmd + K, choose **Add links…**, pick the group, and paste the URLs for that group. Addresses already on the board are skipped, and the dialog shows the count before saving. Repeat per group. One Add links… run is one undo step.
 
 Done when: I have the steps for the list that follows, and nothing was written without me.
 
-### 8. Produce the import list
+### 9. Produce the import list
 
 End with one fenced block of group headings and bare `http`/`https` URLs, nothing after it:
 
@@ -276,18 +216,14 @@ https://linear.app
 
 Reading
 https://news.ycombinator.com
-
-Internal
-http://nas.lan:5000
 ```
 
 Rules for the block: no visit counts, no comments, no markdown links, no trailing punctuation. Group headings are for me; I copy the URLs under one heading at a time.
 
-Done when: every URL in the block appeared in the host table, groups match the plan, and the block is the last thing in your reply.
+Done when: the block has exactly the hosts I approved, every URL matches a row from the step 4 table, no host appears twice, and the block is the last thing in your reply.
 
 ## Reference: reading rules
 
 - The copy is only for this run; delete `$tmp` afterwards.
-- When a query fails because the database is locked or incomplete, ask me to close the browser and copy the profile again.
-- On Firefox, `places.sqlite` is the database; the host table comes from `p.url` grouped by host, not from `visit_count` alone.
+- When the reader fails because the database is locked or incomplete, ask me to close the browser and copy the profile again.
 - Never read `Cookies`, `Login Data`, `Web Data` or any other profile file.

@@ -12,24 +12,27 @@ describe("prompts", () => {
     }
   })
 
-  test("reads history with local shell tools only", () => {
+  test("reads history with one local Node reader and no installs", () => {
     const suggest = promptById("suggest-tiles")
-    expect(suggest?.text).toContain("sqlite3")
+    expect(suggest?.text).toContain("node:sqlite")
     expect(suggest?.text).toContain("PowerShell")
     expect(suggest?.text).toContain("bash")
-    expect(suggest?.text).toContain("python")
     expect(suggest?.text).toContain("Add links")
     expect(suggest?.text).not.toContain("chrome-history.ts")
+    expect(suggest?.text).not.toContain("sqlite3")
+    expect(suggest?.text).not.toContain("python")
     expect(suggest?.text).not.toContain("bun ")
   })
 
-  test("keeps the safety instructions", () => {
+  test("keeps the safety and selection rules", () => {
     const suggest = promptById("suggest-tiles")
     expect(suggest?.text).toContain("Do not write to the board")
     expect(suggest?.text).toContain("Ask before reading history")
     expect(suggest?.text).toContain("Never default to the most recently used profile")
     expect(suggest?.text).toContain("temporary copy")
-    expect(suggest?.text).toContain("internal")
+    expect(suggest?.text).toContain("Rank hosts by visits")
+    expect(suggest?.text).toContain("A subdomain stands alone")
+    expect(suggest?.text).toContain("Internal is opt-in, at most three")
   })
 
   test("gives every step a completion check", () => {

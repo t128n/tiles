@@ -55,9 +55,10 @@ bun run build
 - `src/lib/webmcp.ts` registers `tiles_list` and `tiles_apply_suggestions` when `document.modelContext` exists. `src/lib/agent.ts` also registers ui-sdk's `snapshot`, `act` and `query`. This is optional browser support; the OpenCode history workflow does not depend on it.
 - `tiles_apply_suggestions` defaults to a dry run. Keep the `dryRun: false` path behind `window.confirm`, and never make it delete or reorder.
 - `src/lib/prompts/suggest-tiles.md` is the single source for the agent prompt. Only Help → Agent prompts shows and copies it; Settings has no prompts section. There are no `.opencode` command files; do not add them back.
-- The prompt reads history with bash or PowerShell, `sqlite3` and the Python standard library. It asks for the browser and the profiles, copies the SQLite database to a temporary folder, and ends with a grouped URL list for **Add links…**. Do not reintroduce the removed `scripts/chrome-history.ts`, and do not let the prompt write to the board.
+- The prompt reads history with bash or PowerShell and one Node reader on the built-in `node:sqlite`. It asks for the browser and the profiles, copies the SQLite database to a temporary folder, ranks hosts, asks me to cut and name the headings, and ends with a grouped URL list for **Add links…**. Do not reintroduce the removed `scripts/chrome-history.ts`, and do not let the prompt write to the board.
+- This machine has no `sqlite3` or Python, so keep one reader in the prompt. Do not add fallbacks or reader variants.
 - Never default to the most recently used browser profile in the prompt. Find the installed browsers, ask, then list profiles and ask again.
-- The prompt reports hosts and visits, never page titles or full paths, and leaves sensitive domains out while keeping personal and internal links.
+- The prompt reports hosts and visits, never page titles or full paths, and leaves sensitive domains out while keeping internal links opt-in and capped.
 
 
 ## Structure

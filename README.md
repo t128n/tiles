@@ -45,7 +45,7 @@ WebMCP is still experimental. If `document.modelContext` is missing, enable the 
 
 Open **Help → Agent prompts** (<kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>?</kbd> or <kbd>Alt</kbd> + <kbd>?</kbd>), copy **Suggest tiles**, and paste it into your agent with any constraints. The prompt lives in [`src/lib/prompts/suggest-tiles.md`](src/lib/prompts/suggest-tiles.md); there are no `.opencode` command files.
 
-It asks which browser and which profiles to read before touching history, finds them with PowerShell or bash, and scans a temporary copy of the profile's `History` SQLite database with `sqlite3`, or the Python standard library when `sqlite3` is missing. It looks at hosts, subdomains and the busiest paths, and it includes intranet, self-hosted and `localhost` links in their own group.
+It asks which browser and which profiles to read before touching history, finds them with PowerShell or bash, and scans a temporary copy of the profile's `History` SQLite database with a small Node reader on the built-in `node:sqlite`, so nothing has to be installed. It ranks hosts by visits, looks at subdomains and the busiest paths, and asks you to cut the list and name the groups before any list is written. Internal links are opt-in, at most three, and only for sites you use daily; admin, status and dev-server pages are left out.
 
 The run ends with a grouped list of URLs. Turn on **Paste links** under Settings → Advanced → Experimental, then use **Add links…** in the palette once per group. Duplicates already on the board are skipped, and the agent never writes to the board itself. It reports hosts and visits, not page titles or paths, and leaves banking, health and similar private URLs out.
 
