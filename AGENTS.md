@@ -66,6 +66,7 @@ bun run build
 - `src/lib/experiments/` - ids, registry, search routing, calculator and paste parsing.
 - `src/lib/github.ts` - ungh repository and release fetch, mapping and the ten-minute cache.
 - `src/lib/components/SidePanels.svelte` - sidebar host and tabs; `GithubPanel.svelte` and `HnPanel.svelte` are the panels.
+- The page is the only scroll container. The side column and its tabs are static; do not bring back `position: sticky`, a `100vh` max-height or an inner scrollbar on `.side-column`, because the two scroll levels drift apart at the bottom.
 - `src/lib/components/PaletteDialog.svelte` - the single search and command palette.
 - `src/lib/components/BulkAddDialog.svelte` and `BulkAddForm.svelte` - bulk paste.
 - `docs/specs/`, `docs/plans/`, `docs/adrs/`, `docs/user/`.

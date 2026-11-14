@@ -312,14 +312,9 @@ body {
 /* Side panels: feeds and tabs */
 
 .side-column {
-  position: sticky;
-  top: 24px;
-  max-height: calc(100vh - 48px);
+  min-width: 0;
   padding-inline: 8px;
   margin-inline: -8px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  scrollbar-gutter: stable;
 }
 
 .feed-group {
@@ -335,11 +330,7 @@ body {
 }
 
 .side-tabs {
-  position: sticky;
-  top: 0;
-  z-index: 2;
   gap: 2px;
-  background: var(--bg);
 }
 
 .feed-item:visited {
@@ -1985,11 +1976,6 @@ body {
 
   .workspace.with-panel .groups-column {
     --tile-span: 36;
-  }
-
-  .side-column {
-    position: static;
-    max-height: none;
   }
 }
 
