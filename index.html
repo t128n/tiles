@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="any" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <meta
+      name="theme-color"
+      content="#f5f5f5"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#1e1e1e"
+      media="(prefers-color-scheme: dark)"
+    />
+    <script>
+      try {
+        const raw = localStorage.getItem("tiles:settings:v1")
+        if (raw) {
+          const theme = JSON.parse(raw)?.theme
+          if (theme === "light" || theme === "dark") {
+            document.documentElement.dataset.theme = theme
+          }
+        }
+      } catch {}
+    </script>
+    <meta
+      name="description"
+      content="tiles is a local-first start page for the links you keep close."
+    />
+    <title>tiles</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
